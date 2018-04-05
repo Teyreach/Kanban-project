@@ -1,1 +1,12 @@
 /* Lane styles */
+.AddLane {
+
+}
+
+.Lanes {
+  display: flex;
+}
+
+.Lane {
+  flex-grow: 1;
+}
