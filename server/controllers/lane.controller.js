@@ -2,6 +2,10 @@ import Lane from '../models/lane';
 import Note from '../models/note';
 import uuid from 'uuid';
 
+export function getSomething(req, res) {
+  return res.status(200).end();
+}
+
 export function addLane(req, res) {
   if (!req.body.name) {
     res.status(403).end();
@@ -10,13 +14,12 @@ export function addLane(req, res) {
   const newLane = new Lane(req.body);
 
   newLane.notes = [];
-
   newLane.id = uuid();
   newLane.save((err, saved) => {
     if (err) {
       res.status(500).send(err);
     }
-    res.json(saved);
+      res.json( saved );
   });
 }
 
@@ -25,31 +28,37 @@ export function getLanes(req, res) {
     if (err) {
       res.status(500).send(err);
     }
-    res.json({ lanes });
+      res.json({ lanes });
   });
-}
-
-export function editLane(req, res) {
-  Lane.findOne({ id: req.params.laneId }).exec((err, lane) => {
-    if (err) {
-      res.status(500).send(err);
-    }
-
-    lane.set({ name: req.body.name });
-    lane.save(() => {
-      res.status(200).end();
-    });
-  });
-}
+};
 
 export function deleteLane(req, res) {
   Lane.findOne({ id: req.params.laneId }).exec((err, lane) => {
-    if (err) {
+    if (err) { 
       res.status(500).send(err);
     }
 
+    lane.notes.forEach(function(note) {
+      Note.findOneAndRemove({ id: note.id}).exec((err, note) => {
+        if (err) {
+          res.status(500).send(err);
+        }
+      })
+    });
+
     lane.remove(() => {
-      res.status(200).end();
+      res.json( lane );
     });
   });
+}
+
+export function editName(req, res) {
+  Lane.findOneAndUpdate({ id: req.params.laneId }, {$set:{name: req.body.name}}, {new: true})
+      .exec((err, lane) => {
+        if (err) {
+          res.status(500).send(err);
+        }
+        res.json(lane);
+      }
+  )
 }

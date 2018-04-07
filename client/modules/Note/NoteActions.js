@@ -1,21 +1,35 @@
-import uuid from 'uuid';
+import callApi from '../../util/apiCaller';
 
 // Export Constants
 export const CREATE_NOTE = 'CREATE_NOTE';
+export const CREATE_NOTES = 'CREATE_NOTES';
 export const UPDATE_NOTE = 'UPDATE_NOTE';
-export const EDIT_NOTE = 'EDIT_NOTE';
 export const DELETE_NOTE = 'DELETE_NOTE';
+export const EDIT_NOTE = 'EDIT_NOTE';
 
 // Export Actions
+
 export function createNote(note, laneId) {
   return {
     type: CREATE_NOTE,
     laneId,
-    note: {
-      id: uuid(),
-      ...note,
-    },
+    note,
   };
+}
+
+export function createNotes(notesData) {
+  return {
+    type: CREATE_NOTES,
+    notes: notesData
+  }
+}
+
+export function createNoteRequest(note, laneId) {
+  return (dispatch) => {
+    return callApi('notes', 'post', { note, laneId}).then(noteResp => {
+      dispatch(createNote(noteResp, laneId));
+    })
+  }
 }
 
 export function updateNote(note) {
@@ -25,16 +39,12 @@ export function updateNote(note) {
   };
 }
 
-// is it ok?
-export function editNote(note, noteId) {
-  return {
-    type: EDIT_NOTE,
-    noteId,
-    note: {
-      editing: true,
-      ...note,
-    },
-  };
+export function updateNoteRequest(note, laneId) {
+  return (dispatch) => {
+    return callApi('notes/' + note.id + '/task', 'post', {note, laneId}). then(noteResp => {
+      dispatch(updateNote(note));
+    })
+  }
 }
 
 export function deleteNote(noteId, laneId) {
@@ -43,4 +53,19 @@ export function deleteNote(noteId, laneId) {
     noteId,
     laneId,
   };
+}
+
+export function deleteNoteRequest(noteId, laneId) {
+  return (dispatch) => {
+    return callApi('notes/' + noteId, 'delete', {laneId}).then(noteResp => {
+      dispatch(deleteNote(noteResp.id, laneId));
+    })
+  }
+}
+
+export function editNote(noteId) {
+  return {
+    type: EDIT_NOTE,
+    id: noteId
+  }
 }
