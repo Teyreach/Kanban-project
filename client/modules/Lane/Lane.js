@@ -5,24 +5,22 @@ import Edit from '../../components/Edit';
 import styles from './Lane.css';
 
 const Lane = (props) => {
-  const { lane, laneNotes, updateLane, addNote, editLane, deleteLane } = props;
+  const { connectDropTarget, lane, laneNotes, updateLane, addNote, editLane, deleteLane } = props;
   const laneId = lane.id;
 
-  return (
+  return connectDropTarget(
     <div className={styles.Lane}>
       <div className={styles.LaneHeader}>
-        <div className={styles.LaneAddNote}>
-          <button onClick={() => addNote({ task: 'New Note'}, laneId)}>Add Note</button>
-        </div>
         <Edit
           className={styles.LaneName}
           editing={lane.editing}
           value={lane.name}
           onValueClick={() => editLane(lane.id)}
           onUpdate={name => updateLane({ ...lane, name, editing: false })}
+          onDelete={() => deleteLane(lane)}
         />
-        <div className={styles.LaneDelete}>
-          <button onClick={() => deleteLane(lane)}>Remove Lane</button>
+        <div className={styles.LaneAddNote}>
+          <button className={styles.AddButton} onClick={() => addNote({ task: 'New Note'}, laneId)}>Add Note</button>
         </div>
       </div>
       <NotesContainer
